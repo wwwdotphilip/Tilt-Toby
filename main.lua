@@ -1,5 +1,7 @@
 local storyboard = require"storyboard"
+local database = require"database"
 
+database.opendatabase()
 storyboard.gotoScene("MainMenu", "crossFade", 100)
 
 local function checkmem()
@@ -10,5 +12,9 @@ local function checkmem()
     print( "TexMem:   " .. string.format("%.03f", textMem) .. " MB" ) -- print in MB
 end
 
-timer.performWithDelay(3000, checkmem, 0)
+--timer.performWithDelay(3000, checkmem, 0)
+
+system.setIdleTimer(false)
+display.setStatusBar(display.HiddenStatusBar)
+system.setAccelerometerInterval(30)
 
