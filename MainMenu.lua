@@ -90,18 +90,19 @@ function scene:createScene( event )
         str.effectFile = "images/effectOff.png"
     end
     
-    text.title = display.newText(screenGroup, "TILT", 0, 0, native.systemFont, 220)
-    text.title.x = num._CX;text.title.y = num._CY - 180;
+    text.title = display.newText(screenGroup, "Tilt Tobby", 0, 0, native.systemFont, 120)
+    text.title.x = num._CX - 120;text.title.y = num._CY - 140;
+    text.title.rotation = -25
     
     button.start = widget.newButton{
-        width = 250,
-        height = 170,
-        label = "Start",
-        fontSize = 60,
+        width = 230,
+        height = 230,
+        defaultFile = "images/play.png",
+        overFile = "images/playOver.png",
         onRelease = func.buttonEvent
     }
     button.start.name = "start"
-    button.start.x = num._CX; button.start.y = num._CY + 140
+    button.start.x = num._CX; button.start.y = num._CY + 60
     screenGroup:insert(button.start)
     
     button.sound = widget.newButton{
@@ -123,13 +124,13 @@ function scene:createScene( event )
     button.effect.x = num._W - 80; button.effect.y = 50
     button.effect.name = "effect"
     screenGroup:insert(button.effect)
-    
-    text.help = display.newText(screenGroup, "Do not let the white square", 0, 0, native.systemFont, 47)
-    text.help.x = num._CX;text.help.y = num._CY - 60;
-    
-    text.help = display.newText(screenGroup, "touch the ball", 0, 0, native.systemFont, 47)
-    text.help.x = num._CX;text.help.y = num._CY - 10;
-    
+--    
+--    text.help = display.newText(screenGroup, "Do not let the white square", 0, 0, native.systemFont, 47)
+--    text.help.x = num._CX;text.help.y = num._CY - 60;
+--    
+--    text.help = display.newText(screenGroup, "touch the ball", 0, 0, native.systemFont, 47)
+--    text.help.x = num._CX;text.help.y = num._CY - 10;
+--    
     text.topscore = display.newText(screenGroup, "Top score: " .. num.topscore, 0, 0, native.systemFont, 45)
     text.topscore:setReferencePoint(display.TopLeftReferencePoint)
     text.topscore.x = 20;text.topscore.y = num._H - 80;

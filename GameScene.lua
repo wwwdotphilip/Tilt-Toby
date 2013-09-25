@@ -20,9 +20,11 @@ num._H = display.contentHeight
 num._CX = display.contentCenterX
 num._CY = display.contentCenterY
 num.interval = 1000
-num.transSpeed = 1000
+num.transSpeed = num.interval
+num.make = num.interval
 num.rectnum = 1
 num.score = 0
+num.countDown = 3
 num.rand = math.random
 num.bgTrack = num.rand(1, 4)
 bol.remove = false
@@ -34,24 +36,121 @@ physics.setGravity(0,0)
 --physics.setDrawMode("hybrid")
 
 function func.onAccelerate( event )
---        img.ball.x = num._CX + (num._CX * event.yInstant * -1)
---	img.ball.y = num._CY + (num._CY * event.xInstant * -1)
-        
-	img.ball.x = num._CX + (num._CX * event.yGravity * -1)
-	img.ball.y = num._CY + (num._CY * event.xGravity * -1)
+    if str.isPaused == false then
+        --        img.ball.x = num._CX + (num._CX * event.yInstant * -1)
+        --	img.ball.y = num._CY + (num._CY * event.xInstant * -1)
+        img.ball.x = num._CX + (num._CX * event.yGravity * -1)
+        img.ball.y = num._CY + (num._CY * event.xGravity * -1)
+    end
 end
 
-function func.buttonEvent(event)
-    local t = event.target
-    sound.stopSound = true
-    sound.stop()
+function func.resumeGame()
     sound.playButton(str.effect)
-    if t.name == "quit" then
+    if num.countDown == 0 then
+        text.count:removeSelf()
+        text.count = nil
+        num.countDown = 3
+        str.isPaused = false
+        physics.start()
+        sound.resumeSound()
+        
+        button.pause = widget.newButton{
+            width = 80,
+            height = 80,
+            defaultFile = "images/pause.png",
+            overFile = "images/pauseOver.png",
+            onRelease = func.buttonEvent
+        }
+        button.pause.x = num._W - 70;button.pause.y = 55
+        button.pause.name = "pause"
+        screenGroup:insert(button.pause)
+        
+    else
+        print(num.countDown)
+        if text.count ~= nil then
+            text.count.text = num.countDown
+            num.countDown = num.countDown - 1
+        else
+            text.count = display.newText(screenGroup, num.countDown, 0, 0, native.systemFont, 220)
+            text.count.x = num._CX;text.count.y = num._CY;
+            num.countDown = num.countDown - 1
+        end
+        timer.performWithDelay(1000, func.resumeGame)
+    end
+end
+
+function func.alertListener(event)
+    local i = event.index
+    if 1 == i then
+        sound.stopSound = true
+        sound.stop()
         bol.remove = true
         physics.stop()
         storyboard.gotoScene("MainMenu", "crossFade", 100)
     else
         
+    end
+end
+
+function func.buttonEvent(event)
+    local t = event.target
+    sound.playButton(str.effect)
+    if t.name == "pause" then
+        if str.isPaused then
+            button.pause:removeSelf()
+            button.pause = nil
+            img.pauseGroup.alpha = 1
+            
+            if text.pause ~= nil then
+                text.pause:removeSelf()
+                text.pause = nil
+                button.quit:removeSelf()
+                button.quit = nil
+            end
+            func.resumeGame()
+        else
+            str.isPaused = true
+            num.countDown = 3
+            if text.count ~= nil then
+                text.count:removeSelf()
+                text.count = nil
+            end
+         
+            button.pause:removeSelf()
+            button.pause = nil
+            img.pauseGroup.alpha = 0
+            physics.pause()
+            sound.pause()
+            
+            button.pause = widget.newButton{
+                width = 80,
+                height = 80,
+                defaultFile = "images/resume.png",
+                overFile = "images/resumeOver.png",
+                onRelease = func.buttonEvent
+            }
+            button.pause.x = num._W - 70;button.pause.y = 55
+            button.pause.name = "pause"
+            screenGroup:insert(button.pause)
+            
+            button.quit = widget.newButton{
+                width = 80,
+                height = 80,
+                defaultFile = "images/exit.png",
+                overFile = "images/exitOver.png",
+                onRelease = func.buttonEvent
+            }
+            button.quit.x = num._W - 180;button.quit.y = 55
+            button.quit.name = "quit"
+            screenGroup:insert(button.quit)
+            
+            text.pause = display.newText("PAUSED", 0, 0, native.systemFont, 220)
+            text.pause.x = num._CX;text.pause.y = num._CY;
+            screenGroup:insert(text.pause)
+            
+        end
+    elseif t.name == "quit" then
+        native.showAlert("Quit game?", "Are you sure?", {"Yes", "No"}, func.alertListener)
     end
 end
 
@@ -146,8 +245,6 @@ function func.makeShape()
             num.interval = num.interval - 10
             num.transSpeed = num.transSpeed + 5
         end
-        print(num.interval)
-        timer.performWithDelay(num.interval, func.makeShape)
     end
 end
 
@@ -178,14 +275,35 @@ function func.round(num, idp)
 end
 
 function func.addScore()
-    num.score = num.score + .25
-    text.score.text = "Score: " .. func.round(num.score, 0)
-    text.score:setReferencePoint(display.TopLeftReferencePoint)
-    text.score.x = 20
+    if str.isPaused == false then
+        num.score = num.score + .25
+        text.score.text = "Score: " .. func.round(num.score, 0)
+        text.score:setReferencePoint(display.TopLeftReferencePoint)
+        text.score.x = 20
+        
+        if num.make <= 0 then
+            func.makeShape()
+            num.make = num.interval
+            print("Make shapre")
+        else
+            num.make = num.make - 33.3333333
+        end
+    end
+end
+
+function func.onKeyEvent(event)
+    local phase = event.phase
+    local keyName = event.keyName
+    if phase == "up" and keyName == "back" then
+        return true
+    else
+        return false
+    end
 end
 
 function scene:createScene( event )
     screenGroup = self.view;
+    img.pauseGroup = display.newGroup()
     str.params = event.params
     str.sound = str.params.sound
     str.effect = str.params.effect
@@ -208,25 +326,28 @@ function scene:createScene( event )
     wall.buttom.name = "wallbuttom"
     physics.addBody(wall.buttom, "static", {isSensor = true})
     
-    img.ball = display.newImageRect(screenGroup, "images/greenBall.png", 57, 57)
+    img.ball = display.newImageRect("images/greenBall.png", 57, 57)
     img.ball.x = num._CX; img.ball.y = num._CY;
     img.ball.name = "ball"
     physics.addBody(img.ball, "static", {radius = 26})
     
-    button.quit = widget.newButton{
-        width = 120,
+    button.pause = widget.newButton{
+        width = 80,
         height = 80,
-        label = "Quit",
-        fontSize = 40,
+        defaultFile = "images/pause.png",
+        overFile = "images/pauseOver.png",
         onRelease = func.buttonEvent
     }
-    button.quit.x = num._W - 70;button.quit.y = 55
-    button.quit.name = "quit"
+    button.pause.x = num._W - 70;button.pause.y = 55
+    button.pause.name = "pause"
+    str.isPaused = false
     
     text.score = display.newText("Score: " .. num.score, 20, 20, native.systemFont, 40)
-    screenGroup:insert(img.rectGroup)
-    screenGroup:insert(text.score)
-    screenGroup:insert(button.quit)
+    img.pauseGroup:insert(img.rectGroup)
+    img.pauseGroup:insert(text.score)
+    img.pauseGroup:insert(img.ball)
+    screenGroup:insert(img.pauseGroup)
+    screenGroup:insert(button.pause)
 end
 
 function scene:enterScene( event )
@@ -237,7 +358,8 @@ function scene:enterScene( event )
     Runtime:addEventListener ("accelerometer", func.onAccelerate);
     Runtime:addEventListener("collision", func.collide)
     Runtime:addEventListener("enterFrame", func.addScore)
---    Runtime:addEventListener("touch", func.onScreenTouch)
+    Runtime:addEventListener("key", func.onKeyEvent)
+    --    Runtime:addEventListener("touch", func.onScreenTouch)
     timer.performWithDelay(num.interval, func.makeShape)
 end
 
@@ -246,6 +368,7 @@ function scene:exitScene( event )
     Runtime:removeEventListener ("accelerometer", func.onAccelerate);
     Runtime:removeEventListener("collision", func.collide)
     Runtime:removeEventListener("enterFrame", func.addScore)
+    Runtime:removeEventListener("key", func.onKeyEvent)
     scene:removeEventListener( "createScene", scene );
     scene:removeEventListener( "enterScene", scene );
     scene:removeEventListener( "exitScene", scene );
@@ -273,6 +396,3 @@ scene:addEventListener( "exitScene", scene );
 scene:addEventListener( "destroyScene", scene );
 
 return scene;
-
-
-

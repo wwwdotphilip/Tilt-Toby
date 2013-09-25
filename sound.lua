@@ -60,7 +60,7 @@ function M.pause()
     audio.pause()
 end
 
-function M.resume()
+function M.resumeSound()
     audio.resume()
 end
 

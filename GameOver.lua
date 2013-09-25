@@ -22,7 +22,15 @@ function func.buttonEvent(event)
     sound.playButton(str.effect)
     print(str.effect)
     if t.name == "retry" then
-        storyboard.gotoScene("GameScene", "crossFade", 100)
+        local options = {
+            effect = "crossFade",
+            time = 100,
+            params = {
+                sound = str.sound,
+                effect = str.effect,
+            }
+        }
+        storyboard.gotoScene("GameScene", options)
     else
         storyboard.gotoScene("MainMenu", "crossFade", 100)
     end
@@ -37,25 +45,40 @@ function scene:createScene( event )
     text.shout.x = num._CX;text.shout.y = num._CY - 180;
     
     button.retry = widget.newButton{
-        width = 140,
-        height = 100,
+        width = 120,
+        height = 120,
+        defaultFile = "images/restart.png",
+        defaultOver = "images/restartOver.png",
         label = "Retry",
         fontSize = 40,
+        labelColor = {
+          default = {255, 255, 255},
+          over = {200, 200, 200}
+        },
+        labelYOffset = 85,
         onRelease = func.buttonEvent
     }
-    button.retry.x = num._CX - 100; button.retry.y = num._CY + 160
+    button.retry.x = num._CX - 100; button.retry.y = num._CY + 170
     button.retry.name = "retry"
     
     screenGroup:insert(button.retry)
     
     button.quit = widget.newButton{
-        width = 140,
-        height = 100,
+        width = 120,
+        height = 120,
+        defaultFile = "images/exit.png",
+        defaultOver = "images/exitOver.png",
         label = "Quit",
         fontSize = 40,
+        labelColor = {
+          default = {255, 255, 255},
+          over = {200, 200, 200}
+        },
+        labelYOffset = 85,
+        labelXOffset = 20,
         onRelease = func.buttonEvent
     }
-    button.quit.x = num._CX + 100; button.quit.y = num._CY + 160
+    button.quit.x = num._CX + 100; button.quit.y = num._CY + 170
     button.quit.name = "quit"
     screenGroup:insert(button.quit)
 end
@@ -73,9 +96,9 @@ function scene:enterScene( event )
     end
     
     text.score = display.newText(screenGroup, "Your score: " .. num.score, 0, 0, native.systemFont, 45)
-    text.score.x = num._CX;text.score.y = num._CY;
+    text.score.x = num._CX;text.score.y = num._CY - 20;
     text.topscore = display.newText(screenGroup, "Top score: " .. num.topscore, 0, 0, native.systemFont, 45)
-    text.topscore.x = num._CX;text.topscore.y = num._CY + 60;
+    text.topscore.x = num._CX;text.topscore.y = num._CY + 40;
     sound.loadSounds()
 end
 
