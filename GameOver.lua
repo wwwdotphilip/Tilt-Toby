@@ -15,12 +15,24 @@ num._W = display.contentWidth
 num._H = display.contentHeight
 num._CX = display.contentCenterX
 num._CY = display.contentCenterY
-num.topscore = database.getScore()
+num.topscore, num.coins, str.sound, str.effect  = database.getData()
+
+
+function func.commaVal(amount)
+    local formatted = amount
+    local k;
+    while true do  
+        formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
+        if (k==0) then
+            break
+        end
+    end
+    return formatted
+end
 
 function func.buttonEvent(event)
     local t = event.target
     sound.playButton(str.effect)
-    print(str.effect)
     if t.name == "retry" then
         local options = {
             effect = "crossFade",
@@ -95,9 +107,9 @@ function scene:enterScene( event )
         database.updateScore(num.topscore)
     end
     
-    text.score = display.newText(screenGroup, "Your score: " .. num.score, 0, 0, native.systemFont, 45)
+    text.score = display.newText(screenGroup, "Your score: " .. func.commaVal(num.score), 0, 0, native.systemFont, 45)
     text.score.x = num._CX;text.score.y = num._CY - 20;
-    text.topscore = display.newText(screenGroup, "Top score: " .. num.topscore, 0, 0, native.systemFont, 45)
+    text.topscore = display.newText(screenGroup, "Top score: " .. func.commaVal(num.topscore), 0, 0, native.systemFont, 45)
     text.topscore.x = num._CX;text.topscore.y = num._CY + 40;
     sound.loadSounds()
 end

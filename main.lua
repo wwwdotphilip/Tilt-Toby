@@ -17,4 +17,3 @@ end
 system.setIdleTimer(false)
 display.setStatusBar(display.HiddenStatusBar)
 system.setAccelerometerInterval(30)
-

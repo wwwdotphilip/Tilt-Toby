@@ -6,6 +6,9 @@ local gameTable = "gameTable"
 local topscore = "topscore"
 local effect = "effect"
 local sound = "sound"
+local coins = "coins"
+
+local powerUps = "powerUps"
 
 function M.opendatabase()
     local sqlite3 = require "sqlite3"
@@ -58,31 +61,52 @@ function M.opendatabase()
     Runtime:addEventListener( "system", onSystemEvent )
 end
 
-function M.getScore()
+function M.getData()
     local temp_score;
-    local row
-    
-    for row in db:nrows("SELECT * FROM " .. gameTable) do
-        local rowData1 = row.topscore;
-        temp_score = rowData1;
-    end
-    
-    return temp_score;
-end
-
-function M.getSettings()
+    local temp_coins;
     local temp_sound;
     local temp_effect;
     local row
     
     for row in db:nrows("SELECT * FROM " .. gameTable) do
-        local rowData1 = row.sound;
-        local rowData2 = row.effect;
-        temp_sound = rowData1;
-        temp_effect = rowData2;
+        local rowData1 = row.topscore;
+        local rowData2 = row.coins;
+        local rowData3 = row.sound;
+        local rowData4 = row.effect;
+        temp_score = rowData1;
+        temp_coins = rowData2;
+        temp_sound = rowData3;
+        temp_effect = rowData4;
     end
     
-    return temp_sound, temp_effect;
+    return temp_score, temp_coins, temp_sound, temp_effect;
+end
+
+function M.getpowerups()
+    local temp_name = {};
+    local temp_value = {};
+    local temp_level = {};
+    local temp_maxlevel = {};
+    local temp_type = {};
+    local temp_price = {};
+    local row
+    
+    for row in db:nrows("SELECT * FROM " .. powerUps) do
+        local rowData1 = row.name;
+        local rowData2 = row.value;
+        local rowData3 = row.level;
+        local rowData4 = row.maxlevel;
+        local rowData5 = row.type;
+        local rowData6 = row.price;
+        temp_name[#temp_name+1] = rowData1;
+        temp_value[#temp_value+1] = rowData2;
+        temp_level[#temp_level+1] = rowData3;
+        temp_maxlevel[#temp_maxlevel+1] = rowData4;
+        temp_type[#temp_type+1] = rowData5;
+        temp_price[#temp_price+1] = rowData6;
+    end
+    
+    return temp_name, temp_value, temp_level, temp_maxlevel, temp_type, temp_price;
 end
 
 function M.updateScore(score)

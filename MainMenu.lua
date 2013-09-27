@@ -3,27 +3,39 @@ local widget = require"widget"
 local sound = require"sound"
 local database = require"database"
 local scene = storyboard.newScene();
-local screenGroup;
+local screenGroup; 
 
 local button = {}
 local str = {}
 local num = {}
 local func = {}
 local text = {}
+local img = {}
 
 num._W = display.contentWidth
 num._H = display.contentHeight
 num._CX = display.contentCenterX
 num._CY = display.contentCenterY
-num.topscore = database.getScore()
+num.topscore, num.coins, str.sound, str.effect = database.getData()
 
-str.sound, str.effect = database.getSettings()
 str.soundFile = "images/soundOn.png"
 str.effectFile = "images/effectOn.png"
+str.currentPressed = ""
+
+function func.commaVal(amount)
+    local formatted = amount
+    local k;
+    while true do  
+        formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
+        if (k==0) then
+            break
+        end
+    end
+    return formatted
+end
 
 function func.buttonEvent(event)
     local t = event.target
-    
     if t.name == "start" then
         sound.playButton(str.effect)
         local options = {
@@ -32,9 +44,11 @@ function func.buttonEvent(event)
             params = {
                 sound = str.sound,
                 effect = str.effect,
+                powerup = str.powerup,
+                coins = num.coins,
             }
         }
-        storyboard.gotoScene("GameScene", options)
+        storyboard.gotoScene("upgrades", options)
     elseif t.name == "sound" then
         button.sound:removeSelf()
         button.sound = nil
@@ -76,7 +90,6 @@ function func.buttonEvent(event)
         button.effect.x = num._W - 80; button.effect.y = 50
         button.effect.name = "effect"
         screenGroup:insert(button.effect)
-        
     end
 end
 
@@ -90,8 +103,8 @@ function scene:createScene( event )
         str.effectFile = "images/effectOff.png"
     end
     
-    text.title = display.newText(screenGroup, "Tilt Tobby", 0, 0, native.systemFont, 120)
-    text.title.x = num._CX - 120;text.title.y = num._CY - 140;
+    text.title = display.newText(screenGroup, "Tilt Toby", 0, 0, native.systemFont, 120)
+    text.title.x = num._CX - 105;text.title.y = num._CY - 130;
     text.title.rotation = -25
     
     button.start = widget.newButton{
@@ -124,16 +137,62 @@ function scene:createScene( event )
     button.effect.x = num._W - 80; button.effect.y = 50
     button.effect.name = "effect"
     screenGroup:insert(button.effect)
---    
---    text.help = display.newText(screenGroup, "Do not let the white square", 0, 0, native.systemFont, 47)
---    text.help.x = num._CX;text.help.y = num._CY - 60;
---    
---    text.help = display.newText(screenGroup, "touch the ball", 0, 0, native.systemFont, 47)
---    text.help.x = num._CX;text.help.y = num._CY - 10;
---    
-    text.topscore = display.newText(screenGroup, "Top score: " .. num.topscore, 0, 0, native.systemFont, 45)
-    text.topscore:setReferencePoint(display.TopLeftReferencePoint)
-    text.topscore.x = 20;text.topscore.y = num._H - 80;
+    
+    button.fb = widget.newButton{
+        width = 90,
+        height = 90,
+        defaultFile = "images/fb.png",
+        overFile = "images/fbOver.png",
+        label = "Like us",
+        fontSize = 25,
+        labelYOffset = 60,
+        labelColor = {
+            default = {255, 255, 255},
+            over = {100, 100, 100},
+        },
+        onRelease = func.buttonEvent
+    }
+    button.fb.x = 90; button.fb.y = num._H - 80
+    button.fb.name = "fb"
+    screenGroup:insert(button.fb)
+    
+    button.twitter = widget.newButton{
+        width = 90,
+        height = 90,
+        defaultFile = "images/twitter.png",
+        overFile = "images/twitterOver.png",
+        label = "Follow us",
+        fontSize = 25,
+        labelYOffset = 60,
+        labelColor = {
+            default = {255, 255, 255},
+            over = {100, 100, 100},
+        },
+        onRelease = func.buttonEvent
+    }
+    button.twitter.x = 220; button.twitter.y = num._H - 80
+    button.twitter.name = "twitter"
+    screenGroup:insert(button.twitter)
+    
+    button.store = widget.newButton{
+        width = 140,
+        height = 140,
+        defaultFile = "images/store.png",
+        overFile = "images/storeOver.png",
+        label = "Store",
+        fontSize = 34,
+        labelYOffset = -10,
+        onRelease = func.buttonEvent
+    }
+    button.store.x = num._W - 100; button.store.y = num._H - 100
+    button.store.name = "store"
+    screenGroup:insert(button.store)
+    
+    img.top = display.newImageRect(screenGroup, "images/top.png", 80, 80)
+    img.top.x = 40; img.top.y = 40
+
+    text.topscore = display.newText(screenGroup, func.commaVal(num.topscore), 70, 20, native.systemFont, 38)
+    
 end
 
 function scene:enterScene( event )
