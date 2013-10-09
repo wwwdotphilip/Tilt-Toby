@@ -1,7 +1,8 @@
 local storyboard = require"storyboard";
 local widget = require"widget"
-local sound = require"sound"
-local database = require"database"
+local sound = require"lib.sound"
+local database = require"lib.database"
+local toast = require"lib.toast"
 local scene = storyboard.newScene();
 local screenGroup; 
 
@@ -48,7 +49,7 @@ function func.buttonEvent(event)
                 coins = num.coins,
             }
         }
-        storyboard.gotoScene("upgrades", options)
+        storyboard.gotoScene("class.upgrades", options)
     elseif t.name == "sound" then
         button.sound:removeSelf()
         button.sound = nil
@@ -90,6 +91,12 @@ function func.buttonEvent(event)
         button.effect.x = num._W - 80; button.effect.y = 50
         button.effect.name = "effect"
         screenGroup:insert(button.effect)
+    elseif t.name == "fb" then
+        toast.new("Not working yet", 1500)
+    elseif t.name == "twitter" then
+        toast.new("Not working yet", 1500)
+    elseif t.name == "store" then
+        toast.new("Not working yet", 1500)
     end
 end
 

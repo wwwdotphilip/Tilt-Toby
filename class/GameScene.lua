@@ -2,7 +2,7 @@ local storyboard = require"storyboard";
 local widget = require"widget"
 local physics = require"physics"
 local scene = storyboard.newScene();
-local sound = require"sound"
+local sound = require"lib.sound"
 local screenGroup;
 
 local button = {}
@@ -15,36 +15,39 @@ local rect = {}
 local wall = {}
 local str = {}
 
-num._W = display.contentWidth
-num._H = display.contentHeight
-num._CX = display.contentCenterX
-num._CY = display.contentCenterY
-num.interval = 1000
-num.transSpeed = num.interval
-num.make = num.interval
-num.rectnum = 1
-num.score = 0
-num.countDown = 3
-num.rand = math.random
-num.bgTrack = num.rand(1, 4)
-num.lastObj = 1
-num.life = 1
-bol.remove = false
-bol.touch = false
-sound.stopSound = false
-bol.invincible = false
-bol.slowtime = false
-
-physics.start()
-physics.setGravity(0,0)
---physics.setDrawMode("hybrid")
+function func.initVal()
+    num._W = display.contentWidth
+    num._H = display.contentHeight
+    num._CX = display.contentCenterX
+    num._CY = display.contentCenterY
+    num.interval = 1000
+    num.transSpeed = num.interval
+    num.make = num.interval
+    num.rectnum = 1
+    num.score = 0
+    num.countDown = 3
+    num.rand = math.random
+    num.bgTrack = num.rand(1, 4)
+    num.lastObj = 1
+    num.life = 1
+    bol.remove = false
+    bol.touch = false
+    sound.stopSound = false
+    bol.invincible = false
+    bol.slowtime = false
+    
+    physics.start()
+    physics.setGravity(0,0)
+    --physics.setDrawMode("hybrid")
+    
+end
 
 function func.onAccelerate( event )
     if str.isPaused == false then
         --        img.ball.x = num._CX + (num._CX * event.yInstant * -1)
         --	img.ball.y = num._CY + (num._CY * event.xInstant * -1)
-        img.ball.x = num._CX + (num._CX * event.yGravity * -1)
-        img.ball.y = num._CY + (num._CY * event.xGravity * -1)
+        img.ball.x = num._CX + (num._CX * event.yGravity * -2)
+        img.ball.y = num._CY + (num._CY * event.xGravity * -1.75)
     end
 end
 
@@ -89,7 +92,7 @@ function func.alertListener(event)
         sound.stop()
         bol.remove = true
         physics.stop()
-        storyboard.gotoScene("MainMenu", "crossFade", 100)
+        storyboard.gotoScene("class.MainMenu", "crossFade", 100)
     else
         
     end
@@ -118,7 +121,7 @@ function func.buttonEvent(event)
                 text.count:removeSelf()
                 text.count = nil
             end
-         
+            
             button.pause:removeSelf()
             button.pause = nil
             img.pauseGroup.alpha = 0
@@ -162,7 +165,7 @@ function func.collide(event)
     local t = event.object1
     local o = event.object2
     if phase == "began" then
-        if t.name == "ball" then
+        --[[if t.name == "ball" then
             if bol.invincible then
                 
             elseif num.life > 1 then
@@ -195,7 +198,9 @@ function func.collide(event)
                 }
                 storyboard.gotoScene("GameOver", options)
             end
-        elseif o.name == "ball" then
+        else]]
+        
+        if o.name == "ball" then
             if bol.invincible then
                 
             elseif num.life > 1 then
@@ -204,11 +209,11 @@ function func.collide(event)
                     if o.alpha == 1 then
                         a = 0
                     end
-                    transition.to(o, {alpha = a})
+                    transition.to(o, {time = 70, alpha = a})
                 end
                 num.life = num.life - 1
                 sound.playDeadSound(str.effect)
-                timer.performWithDelay(100, isHit, 4)
+                timer.performWithDelay(100, isHit, 6)
             else
                 num.life = num.life - 1
                 sound.stopSound = true
@@ -227,7 +232,7 @@ function func.collide(event)
                         effect = str.effect,
                     }
                 }
-                storyboard.gotoScene("GameOver", options)
+                storyboard.gotoScene("class.GameOver", options)
             end
             
         elseif t.name == "wallleft" or t.name == "wallright" or t.name == "walltop" or t.name == "wallbuttom" then
@@ -235,11 +240,11 @@ function func.collide(event)
             num.score = num.score + 5
             o:removeSelf();
             o = nil;
-        elseif o.name == "wallleft" or o.name == "wallright" or o.name == "walltop" or o.name == "wallbuttom" then
-            num.lastObj = o.id
-            num.score = num.score + 5
-            t:removeSelf();
-            t = nil;
+            --[[]      elseif o.name == "wallleft" or o.name == "wallright" or o.name == "walltop" or o.name == "wallbuttom" then
+                        num.lastObj = o.id
+                        num.score = num.score + 5
+                        t:removeSelf();
+            t = nil;]]
         end
     elseif phase == "ended" then
         
@@ -293,11 +298,13 @@ function func.onScreenTouch(event)
         
     elseif t.phase == "ended" then
         if bol.touch then
-            screenGroup:scale(2, 2)
+            screenGroup.xScale = 1
+            screenGroup.yScale = 1
             screenGroup.x = 0;screenGroup.y = 0;
             bol.touch = false
         elseif bol.touch == false then
-            screenGroup:scale(0.5, 0.5)
+            screenGroup.xScale = .5
+            screenGroup.yScale = .5
             screenGroup.x = num._CX * .5;screenGroup.y = num._CY * .5;
             bol.touch = true
         end
@@ -305,13 +312,30 @@ function func.onScreenTouch(event)
     end
 end
 
+function func.cancelPowerUp(powertype)
+    if powertype == "invincibility" then
+        bol.invincible = false
+    elseif powertype == "slowtime" then
+        bol.slowtime = false
+    end
+end
+
 function func.doubleTap(event)
     if (event.numTaps > 1 ) then
         if str.powerup == "invincibility" then
-            bol.invincible = true
+            if num.usability > 0 then
+                print("Power up used")
+                bol.invincible = true
+                num.usability = num.usability - 1
+            end
         elseif str.powerup == "slowtime" then
-            bol.slowtime = true
+            if num.usability > 0 then
+                print("Power up used")
+                bol.slowtime = true
+                num.usability = num.usability - 1
+            end
         end
+        timer.performWithDelay(num.powerval, function()func.cancelPowerUp(str.powerup)end)
     end
     return true
 end
@@ -364,6 +388,7 @@ function func.onKeyEvent(event)
 end
 
 function scene:createScene( event )
+    func.initVal()
     screenGroup = self.view;
     img.pauseGroup = display.newGroup()
     str.params = event.params
@@ -371,6 +396,7 @@ function scene:createScene( event )
     str.effect = str.params.effect
     str.powerup = str.params.powerup
     num.powerval = str.params.powerval
+    num.usability = str.params.usability
     sound.loadSounds()
     sound.playBgSound(num.bgTrack,str.sound)
     img.rectGroup = display.newGroup()
@@ -413,12 +439,13 @@ function scene:createScene( event )
     text.score = display.newText("Score: " .. num.score, 20, 20, native.systemFont, 40)
     img.pauseGroup:insert(img.rectGroup)
     img.pauseGroup:insert(text.score)
-    img.pauseGroup:insert(img.ball)
+    img.pauseGroup:insert(img.ball)    
     screenGroup:insert(img.pauseGroup)
     screenGroup:insert(button.pause)
 end
 
 function scene:enterScene( event )
+    system.setAccelerometerInterval(40)
     local prev = storyboard.getPrevious()
     if(prev ~= nil) then
         storyboard.removeScene(prev)
@@ -426,7 +453,6 @@ function scene:enterScene( event )
     if str.powerup == "extralife" then
         num.life = num.life + num.powerval
     end
-    print(num.life)
     system.setTapDelay(0.5)
     Runtime:addEventListener ("accelerometer", func.onAccelerate);
     Runtime:addEventListener("collision", func.collide)
@@ -438,13 +464,14 @@ function scene:enterScene( event )
 end
 
 function scene:exitScene( event )
-    -- This is where you remove all variables.
+    system.setAccelerometerInterval(10)
     system.setTapDelay(0)
     Runtime:removeEventListener ("accelerometer", func.onAccelerate);
     Runtime:removeEventListener("collision", func.collide)
     Runtime:removeEventListener("enterFrame", func.addScore)
     Runtime:removeEventListener("key", func.onKeyEvent)
     Runtime:removeEventListener("tap", func.doubleTap)
+    --    Runtime:addEventListener("touch", func.onScreenTouch)
     scene:removeEventListener( "createScene", scene );
     scene:removeEventListener( "enterScene", scene );
     scene:removeEventListener( "exitScene", scene );

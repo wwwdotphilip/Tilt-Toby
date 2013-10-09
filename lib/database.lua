@@ -89,6 +89,7 @@ function M.getpowerups()
     local temp_maxlevel = {};
     local temp_type = {};
     local temp_price = {};
+    local temp_usability = {};
     local row
     
     for row in db:nrows("SELECT * FROM " .. powerUps) do
@@ -98,15 +99,18 @@ function M.getpowerups()
         local rowData4 = row.maxlevel;
         local rowData5 = row.type;
         local rowData6 = row.price;
+        local rowData7 = row.usability;
         temp_name[#temp_name+1] = rowData1;
         temp_value[#temp_value+1] = rowData2;
         temp_level[#temp_level+1] = rowData3;
         temp_maxlevel[#temp_maxlevel+1] = rowData4;
         temp_type[#temp_type+1] = rowData5;
         temp_price[#temp_price+1] = rowData6;
+        temp_usability[#temp_usability+1] = rowData7;
+        print(rowData7)
     end
     
-    return temp_name, temp_value, temp_level, temp_maxlevel, temp_type, temp_price;
+    return temp_name, temp_value, temp_level, temp_maxlevel, temp_type, temp_price, temp_usability;
 end
 
 function M.updateScore(score)

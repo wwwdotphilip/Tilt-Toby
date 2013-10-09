@@ -1,7 +1,7 @@
 local storyboard = require"storyboard";
 local widget = require"widget";
-local sound = require"sound"
-local database = require"database"
+local sound = require"lib.sound"
+local database = require"lib.database"
 local scene = storyboard.newScene();
 local screenGroup;
 
@@ -19,8 +19,9 @@ num._CX = display.contentCenterX
 num._CY = display.contentCenterY
 str.powerup = {};
 bol.powerupselect = false;
-str.powerup.name, str.powerup.value, str.powerup.level, str.powerup.maxlevel, str.powerup.type, str.powerup.price = database.getpowerups()
+str.powerup.name, str.powerup.value, str.powerup.level, str.powerup.maxlevel, str.powerup.type, str.powerup.price, str.powerup.usability = database.getpowerups()
 num.powerval = 0
+num.usability = 0
 
 function func.commaVal(amount)
     local formatted = amount
@@ -54,17 +55,20 @@ end
 function func.getpower()
     for i = 1, #str.powerup.name do
         if str.powerup.name[i] == button.extralife.name then
-            button.extralife.text = "Extra life x" .. str.powerup.value[i] .."\nLevel: " .. str.powerup.level[i] .. 
+            button.extralife.text = "Extra life x" .. str.powerup.value[i] .."\nLevel: " .. str.powerup.level[i] .. "\nCost: " .. str.powerup.price[i] .. " coins" ..
             "\n\nGet hit more than once."
             num.powerval1 = num.powerval + str.powerup.value[i]
+            num.usability1 = num.usability + str.powerup.usability[i]
         elseif str.powerup.name[i] == button.invincible.name then
-            button.invincible.text = "Invincibility\n" .. func.convertTime(str.powerup.value[i]) .."\nLevel: " .. str.powerup.level[i] .. 
+            button.invincible.text = "Invincibility\n" .. func.convertTime(str.powerup.value[i]) .."\nLevel: " .. str.powerup.level[i] .. "\nCost: " .. str.powerup.price[i] .. " coins" ..
             "\n\nObjects will just past through you."
             num.powerval2 = num.powerval + str.powerup.value[i]
+            num.usability2 = num.usability + str.powerup.usability[i]
         elseif str.powerup.name[i] == button.slowtime.name then
-            button.slowtime.text = "Slow time\n" .. func.convertTime(str.powerup.value[i]) .."\nLevel: " .. str.powerup.level[i] .. 
+            button.slowtime.text = "Slow time\n" .. func.convertTime(str.powerup.value[i]) .."\nLevel: " .. str.powerup.level[i] .."\nCost: " .. str.powerup.price[i] .. " coins" ..
             "\n\nMake everything move slow except you."
             num.powerval3 = num.powerval + str.powerup.value[i]
+            num.usability3 = num.usability + str.powerup.usability[i]
         end
     end
 end
@@ -260,9 +264,12 @@ function func.buttonEvent(event)
                 effect = str.effect,
                 powerup = str.selectedpowerup,
                 powerval = num.powerval,
+                usability = num.usability,
             }
         }
-        storyboard.gotoScene("GameScene", options)
+        storyboard.gotoScene("class.GameScene", options)
+    elseif t.name == "back" then
+        storyboard.gotoScene("class.MainMenu", "crossFade", 100)
     elseif t.name == "extralife" then
         func.getpower()
         if button.extralife.selected == false then
@@ -271,9 +278,11 @@ function func.buttonEvent(event)
             text.power.y = 10
             str.selectedpowerup = "extralife"
             num.powerval = num.powerval1
+            num.usability = num.usability1
         else
             str.selectedpowerup = ""
             num.powerval = 0
+            num.usability = 0
         end
         func.switchpower()
     elseif t.name == "slowtime" then
@@ -284,9 +293,11 @@ function func.buttonEvent(event)
             text.power.y = 10
             str.selectedpowerup = "slowtime"
             num.powerval = num.powerval3
+            num.usability = num.usability3
         else
             str.selectedpowerup = ""
             num.powerval = 0
+            num.usability = 0
         end
         func.switchpower()
     elseif t.name == "invincibility" then
@@ -297,9 +308,11 @@ function func.buttonEvent(event)
             text.power.y = 10
             str.selectedpowerup = "invincibility"
             num.powerval = num.powerval2
+            num.usability = num.usability2
         else
             str.selectedpowerup = ""
             num.powerval = 0
+            num.usability = 0
         end
         func.switchpower()
     end
@@ -335,6 +348,17 @@ function scene:createScene( event )
     button.start.name = "start"
     button.start.selected = false
     screenGroup:insert(button.start)
+    
+    button.back = widget.newButton{
+        width = 120,
+        height = 80,
+        label = "BACK",
+        fontSize = 36,
+        onRelease = func.buttonEvent
+    }
+    button.back.x = num._W - 70; button.back.y = 40
+    button.back.name = "back"
+    screenGroup:insert(button.back)
     
     button.slowtime = widget.newButton{
         width = 90,
@@ -381,9 +405,9 @@ function scene:createScene( event )
     {
         text = "Tap items bellow to enable power ups.",     
         x = 160,
-        y = 120,
+        y = 240,
         width = 220,
-        height = 0,
+        height = 440,
         font = native.systemFont,   
         fontSize = 34,
         align = "center"

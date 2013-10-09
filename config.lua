@@ -3,8 +3,7 @@ if display.pixelHeight > 960 then
         content = {
             width = 640,
             height = 1136,
---            scale = "zoomStretch",
-            scale = "letterBox",
+            scale = "zoomStretch",
             fps = 30,
             antialias = "true",
         },
@@ -17,8 +16,7 @@ else
         content = {
             width = 640,
             height = 960,
---            scale = "zoomStretch",
-            scale = "letterBox",
+            scale = "zoomStretch",
             fps = 30,
             antialias = "true",
         },

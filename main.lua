@@ -1,8 +1,8 @@
 local storyboard = require"storyboard"
-local database = require"database"
+local database = require"lib.database"
 
 database.opendatabase()
-storyboard.gotoScene("MainMenu", "crossFade", 100)
+storyboard:gotoScene("class.MainMenu", "crossFade", 100)
 
 local function checkmem()
     collectgarbage()
@@ -16,4 +16,3 @@ end
 
 system.setIdleTimer(false)
 display.setStatusBar(display.HiddenStatusBar)
-system.setAccelerometerInterval(30)

@@ -1,7 +1,7 @@
 local storyboard = require"storyboard";
-local sound = require"sound"
+local sound = require"lib.sound"
 local widget = require"widget"
-local database = require"database"
+local database = require"lib.database"
 local scene = storyboard.newScene();
 local screenGroup;
 
@@ -42,9 +42,9 @@ function func.buttonEvent(event)
                 effect = str.effect,
             }
         }
-        storyboard.gotoScene("GameScene", options)
+        storyboard.gotoScene("class.GameScene", options)
     else
-        storyboard.gotoScene("MainMenu", "crossFade", 100)
+        storyboard.gotoScene("class.MainMenu", "crossFade", 100)
     end
 end
 
@@ -53,44 +53,43 @@ function scene:createScene( event )
     str.params = event.params
     str.sound = str.params.sound
     str.effect = str.params.effect
-    text.shout = display.newText(screenGroup, "OUCH!!!", 0, 0, native.systemFont, 220)
+    text.shout = display.newText(screenGroup, "Game Over", 0, 0, native.systemFont, 190)
     text.shout.x = num._CX;text.shout.y = num._CY - 180;
-    
-    button.retry = widget.newButton{
-        width = 120,
-        height = 120,
-        defaultFile = "images/restart.png",
-        defaultOver = "images/restartOver.png",
-        label = "Retry",
-        fontSize = 40,
-        labelColor = {
-          default = {255, 255, 255},
-          over = {200, 200, 200}
-        },
-        labelYOffset = 85,
-        onRelease = func.buttonEvent
-    }
-    button.retry.x = num._CX - 100; button.retry.y = num._CY + 170
-    button.retry.name = "retry"
-    
-    screenGroup:insert(button.retry)
-    
+--    
+--    button.retry = widget.newButton{
+--        width = 120,
+--        height = 120,
+--        defaultFile = "images/restart.png",
+--        defaultOver = "images/restartOver.png",
+--        label = "Retry",
+--        fontSize = 40,
+--        labelColor = {
+--          default = {255, 255, 255},
+--          over = {200, 200, 200}
+--        },
+--        labelYOffset = 85,
+--        onRelease = func.buttonEvent
+--    }
+--    button.retry.x = num._CX - 100; button.retry.y = num._CY + 170
+--    button.retry.name = "retry"
+--    screenGroup:insert(button.retry)
+--    
     button.quit = widget.newButton{
-        width = 120,
+        width = 200,
         height = 120,
-        defaultFile = "images/exit.png",
-        defaultOver = "images/exitOver.png",
-        label = "Quit",
-        fontSize = 40,
-        labelColor = {
-          default = {255, 255, 255},
-          over = {200, 200, 200}
-        },
-        labelYOffset = 85,
-        labelXOffset = 20,
+--        defaultFile = "images/exit.png",
+--        defaultOver = "images/exitOver.png",
+        label = "Back",
+        fontSize = 80,
+--        labelColor = {
+--          default = {255, 255, 255},
+--          over = {200, 200, 200}
+--        },
+--        labelYOffset = 85,
+--        labelXOffset = 20,
         onRelease = func.buttonEvent
     }
-    button.quit.x = num._CX + 100; button.quit.y = num._CY + 170
+    button.quit.x = num._CX; button.quit.y = num._CY + 200
     button.quit.name = "quit"
     screenGroup:insert(button.quit)
 end
